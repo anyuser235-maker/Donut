@@ -23,6 +23,6 @@ curl -L -H "User-Agent: Mozilla/5.0" -o "OpS.7z" "https://github.com/optiscaler/
 del /f /q "OpS.7z"
 
 :: 8. Run setup_windows.bat with inputs: 1 (dxgi.dll), 2 (Nvidia), and Enter (to pass pause)
-:: (echo 1 & echo 2 & echo.) | cmd /c setup_windows.bat
+(echo 1 & echo 2 & echo.) | cmd /c setup_windows.bat
 
 echo Process finished!
