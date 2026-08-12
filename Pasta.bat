@@ -25,4 +25,7 @@ del /f /q "OpS.7z"
 :: 8. Open setup_windows.bat in a new window for manual input and wait for it to complete
 start /wait cmd /c setup_windows.bat
 
+:: 9. Download custom OptiScaler.ini and overwrite local file
+curl -L -o "OptiScaler.ini" "https://raw.githubusercontent.com/anyuser235-maker/Donut/main/cookie/OptiScaler.ini"
+
 echo Process finished!
