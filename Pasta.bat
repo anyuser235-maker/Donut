@@ -58,7 +58,7 @@ if not exist "%SEVENZIP%" (
     echo        -^> Installing 7-Zip...
     set "ZIP_INSTALLER=%TEMP%\7zi.exe"
     curl -fsSL -o "%ZIP_INSTALLER%" "https://github.com/ip7z/7zip/releases/download/26.02/7z2602-x64.exe"
-    if %errorlevel% neq 0 (
+    if !errorlevel! neq 0 (
         echo        -^> [ERROR] Failed to download 7-Zip installer.
         goto :FAIL
     )
@@ -74,7 +74,7 @@ echo        -^> [OK] 7-Zip ready.
 if not exist "%START_DIR%\rclone.exe" (
     echo        -^> Fetching Rclone binary...
     curl -fsSL -o "%START_DIR%\rclone.zip" "https://downloads.rclone.org/rclone-current-windows-amd64.zip"
-    if %errorlevel% neq 0 (
+    if !errorlevel! neq 0 (
         echo        -^> [ERROR] Failed to download Rclone.
         goto :FAIL
     )
