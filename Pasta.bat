@@ -79,7 +79,7 @@ if not exist "%START_DIR%\rclone.exe" (
         goto :FAIL
     )
     echo        -^> Extracting Rclone binary...
-    "%SEVENZIP%" e "%START_DIR%\rclone.zip" -o"%START_DIR%\" rclone.exe -r -y >nul 2>&1
+    "%SEVENZIP%" e "%START_DIR%\rclone.zip" -o"%START_DIR%" rclone.exe -r -y >nul 2>&1
     del /f /q "%START_DIR%\rclone.zip" >nul 2>&1
 )
 if not exist "%START_DIR%\rclone.exe" (
@@ -113,7 +113,7 @@ if %RCLONE_ERR% neq 0 (
 if exist "%START_DIR%\%ARCHIVE_NAME%" (
     echo        -^> Extracting shaders to LocalData...
     if not exist "%SHADER_DIR%" mkdir "%SHADER_DIR%"
-    "%SEVENZIP%" x "%START_DIR%\%ARCHIVE_NAME%" -o"%SHADER_DIR%\" -y -bsp1
+    "%SEVENZIP%" x "%START_DIR%\%ARCHIVE_NAME%" -o"%SHADER_DIR%" -y -bsp1
     if !errorlevel! neq 0 (
         echo        -^> [ERROR] Shader archive extraction failed ^(exit !errorlevel!^).
         goto :FAIL
@@ -146,7 +146,7 @@ if not exist "OpS.7z" (
     goto :FAIL
 )
 
-"%SEVENZIP%" x "OpS.7z" -o"%BIN_DIR%\" -y
+"%SEVENZIP%" x "OpS.7z" -o"%BIN_DIR%" -y
 if !errorlevel! neq 0 (
     echo        -^> [ERROR] Failed to extract OptiScaler archive ^(exit !errorlevel!^).
     popd
