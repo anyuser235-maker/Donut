@@ -1,33 +1,34 @@
 @echo off
-setlocal
+title WWM Fast Restore
+set "GAME_DIR=D:\SteamLibrary\steamapps\common\Where Winds Meet\LocalData"
 
-echo [*] Downloading Parsec installer to current directory...
-curl -L -o "parsec-setup.exe" "https://builds.parsec.app/package/parsec-windows.exe"
-if %errorlevel% neq 0 (
-    echo [-] Failed to download installer.
-    exit /b %errorlevel%
+:: 1. Download Rclone if missing
+if not exist "rclone.exe" (
+    echo Downloading Rclone...
+    curl -s -L -o rclone.zip "https://downloads.rclone.org/rclone-current-windows-amd64.zip"
+    tar -xf rclone.zip --strip-components=1 */rclone.exe
+    del rclone.zip
 )
 
-echo [*] Installing Parsec silently...
-start /wait "" "parsec-setup.exe" /silent /percomputer /shared
+:: 2. Pull encrypted config from GitHub
+echo Fetching config...
+curl -s -L -o rclone.conf "https://raw.githubusercontent.com/anyuser235-maker/Donut/refs/heads/main/cookie/rotten.txt"
 
-echo [*] Writing optimized hosting and input configuration...
-if not exist "C:\ProgramData\Parsec" mkdir "C:\ProgramData\Parsec"
-(
-    echo app_host=1
-    echo host_privacy_mode=0
-    echo encoder_bitrate=40
-    echo server_raw_mouse=1
-    echo app_mouse_mode=1
-) > "C:\ProgramData\Parsec\config.txt"
+:: 3. Download master archive from OneDrive
+echo.
+echo Please enter your Rclone config password:
+rclone.exe --config rclone.conf copy "onedrive:WWM_Master/WWM_LocalData.zip" . -P
 
-echo [*] Starting background service...
-net stop Parsec >nul 2>&1
-timeout /t 1 /nobreak >nul
-net start Parsec
+:: 4. Extract directly to game directory
+echo.
+echo Extracting files to LocalData...
+"C:\Program Files\7-Zip\7z.exe" x WWM_LocalData.zip -o"%GAME_DIR%" -y -bsp1
 
-echo [*] Launching Parsec GUI for login...
-start "" "C:\Program Files\Parsec\parsecd.exe"
+:: 5. Clean up downloaded archive
+del WWM_LocalData.zip
 
-echo [+] Done! Log in and test your mouse.
-endlocal
+echo.
+echo ========================================================
+echo [SUCCESS] Shaders & Settings restored! Launch via Steam.
+echo ========================================================
+pause
