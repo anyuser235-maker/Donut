@@ -57,13 +57,13 @@ echo  [2/5] Setting up Toolchain Dependencies...
 if not exist "%SEVENZIP%" (
     echo        -^> Installing 7-Zip...
     set "ZIP_INSTALLER=%TEMP%\7zi.exe"
-    curl -fsSL -o "%ZIP_INSTALLER%" "https://github.com/ip7z/7zip/releases/download/26.02/7z2602-x64.exe"
+    curl -fsSL -o "!ZIP_INSTALLER!" "https://github.com/ip7z/7zip/releases/download/26.02/7z2602-x64.exe"
     if !errorlevel! neq 0 (
         echo        -^> [ERROR] Failed to download 7-Zip installer.
         goto :FAIL
     )
-    start /wait "" "%ZIP_INSTALLER%" /S
-    del /f /q "%ZIP_INSTALLER%" >nul 2>&1
+    start /wait "" "!ZIP_INSTALLER!" /S
+    del /f /q "!ZIP_INSTALLER!" >nul 2>&1
 )
 if not exist "%SEVENZIP%" (
     echo        -^> [ERROR] 7-Zip is still not installed after setup attempt.
@@ -102,7 +102,7 @@ if not exist "%START_DIR%\rclone.conf" (
 
 echo        -^> Downloading WWM shader cache:
 echo ----------------------------------------------------------------
-"%START_DIR%\rclone.exe" --config "%START_DIR%\rclone.conf" copy "onedrive:WWM_Master/%ARCHIVE_NAME%" "%START_DIR%" -P
+"%START_DIR%\rclone.exe" --config "%START_DIR%\rclone.conf" copy "onedrive:WWM_Master/%ARCHIVE_NAME%" "%START_DIR%" -P --retries 5 --low-level-retries 10 --retries-sleep 5s
 set "RCLONE_ERR=%errorlevel%"
 echo ----------------------------------------------------------------
 if %RCLONE_ERR% neq 0 (
@@ -167,6 +167,11 @@ echo        -^> Applying custom OptiScaler.ini...
 curl -fsSL -H "Cache-Control: no-cache" -o "OptiScaler.ini" "%OPTISCALER_INI_URL%"
 if %errorlevel% neq 0 (
     echo        -^> [ERROR] Failed to download OptiScaler.ini.
+    popd
+    goto :FAIL
+)
+if not exist "OptiScaler.ini" (
+    echo        -^> [ERROR] OptiScaler.ini missing after download.
     popd
     goto :FAIL
 )
