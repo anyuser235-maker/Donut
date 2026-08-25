@@ -11,13 +11,14 @@ if %errorlevel% neq 0 (
 echo [*] Installing Parsec silently...
 start /wait "" "parsec-setup.exe" /silent /percomputer /shared
 
-echo [*] Enabling hosting in configuration...
+echo [*] Writing optimized hosting and input configuration...
 if not exist "C:\ProgramData\Parsec" mkdir "C:\ProgramData\Parsec"
 (
     echo app_host=1
-    echo host_virtual_monitors=1
     echo host_privacy_mode=0
-    echo encoder_bitrate=30
+    echo encoder_bitrate=40
+    echo server_raw_mouse=1
+    echo app_mouse_mode=1
 ) > "C:\ProgramData\Parsec\config.txt"
 
 echo [*] Starting background service...
@@ -25,8 +26,8 @@ net stop Parsec >nul 2>&1
 timeout /t 1 /nobreak >nul
 net start Parsec
 
-echo [*] Launching Parsec GUI for manual login...
+echo [*] Launching Parsec GUI for login...
 start "" "C:\Program Files\Parsec\parsecd.exe"
 
-echo [+] Done! Log into your account on the screen.
+echo [+] Done! Log in and test your mouse.
 endlocal
