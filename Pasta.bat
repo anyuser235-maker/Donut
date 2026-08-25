@@ -106,7 +106,7 @@ if exist "C:\Program Files\7-Zip\7z.exe" (
 if exist "setup_windows.bat" (
     echo        -^> Launching OptiScaler Setup:
     echo ----------------------------------------------------------------
-    call setup_windows.bat
+    start /wait cmd /c setup_windows.bat
     echo ----------------------------------------------------------------
 )
 
