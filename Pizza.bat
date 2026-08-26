@@ -1,34 +1,33 @@
 @echo off
-title WWM Fast Restore
-set "GAME_DIR=D:\SteamLibrary\steamapps\common\Where Winds Meet\LocalData"
+:: ========================================================
+:: Cloud VM RAM & CPU Performance Optimization Script
+:: ========================================================
 
-:: 1. Download Rclone if missing
-if not exist "rclone.exe" (
-    echo Downloading Rclone...
-    curl -s -L -o rclone.zip "https://downloads.rclone.org/rclone-current-windows-amd64.zip"
-    tar -xf rclone.zip --strip-components=1 */rclone.exe
-    del rclone.zip
-)
+echo [1/5] Unlocking & Activating High Performance Power Plan...
+powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61 >nul 2>&1
+powercfg -setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
 
-:: 2. Pull encrypted config from GitHub
-echo Fetching config...
-curl -s -L -o rclone.conf "https://raw.githubusercontent.com/anyuser235-maker/Donut/refs/heads/main/cookie/rotten.txt"
+echo [2/5] Configuring Fixed 16 GB Pagefile on C:...
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Set-CimInstance -Query 'Select * from Win32_ComputerSystem' -Property @{AutomaticManagedPagefile = $False}; $pf = Get-CimInstance Win32_PageFileSetting -Filter \"Name like 'C:%'\"; if ($pf) { $pf | Set-CimInstance -Property @{InitialSize = 16384; MaximumSize = 16384} } else { New-CimInstance -ClassName Win32_PageFileSetting -Property @{Name = 'C:\pagefile.sys'; InitialSize = 16384; MaximumSize = 16384} }; Get-CimInstance Win32_PageFileSetting -Filter \"Name not like 'C:%'\" | Remove-CimInstance"
 
-:: 3. Download master archive from OneDrive
-echo.
-echo Please enter your Rclone config password:
-rclone.exe --config rclone.conf copy "onedrive:WWM_Master/WWM_LocalData.zip" . -P
+echo [3/5] Optimizing RAM Paging & Memory Management...
+:: Keep Windows Kernel and core drivers in physical RAM instead of paging to disk
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v DisablePagingExecutive /t REG_DWORD /d 1 /f >nul
+:: Prioritize process working set RAM for active games over file system cache
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v LargeSystemCache /t REG_DWORD /d 0 /f >nul
+:: Prevent VM shutdown lag from wiping pagefile
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v ClearPageFileAtShutdown /t REG_DWORD /d 0 /f >nul
 
-:: 4. Extract directly to game directory
-echo.
-echo Extracting files to LocalData...
-"C:\Program Files\7-Zip\7z.exe" x WWM_LocalData.zip -o"%GAME_DIR%" -y -bsp1
+echo [4/5] Optimizing CPU Priority & Foreground Responsiveness...
+:: Optimize thread scheduling and short quanta for foreground gaming processes (0x26 / Dec 38)
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 38 /f >nul
 
-:: 5. Clean up downloaded archive
-del WWM_LocalData.zip
+echo [5/5] Disabling Background DVR & Latency Overhead...
+reg add "HKCU\System\GameConfigStore" /v GameDVR_Enabled /t REG_DWORD /d 0 /f >nul
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\GameDVR" /v AllowGameDVR /t REG_DWORD /d 0 /f >nul
 
 echo.
 echo ========================================================
-echo [SUCCESS] Shaders & Settings restored! Launch via Steam.
+echo  All RAM, Pagefile, and CPU optimizations applied!
 echo ========================================================
 pause
