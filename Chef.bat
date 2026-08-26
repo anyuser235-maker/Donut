@@ -42,8 +42,14 @@ if not exist "%GAME_DIR%" (
 )
 
 if exist "%ARCHIVE_NAME%" del /f /q "%ARCHIVE_NAME%" >nul 2>&1
-"C:\Program Files\7-Zip\7z.exe" a -tzip "%ARCHIVE_NAME%" "%GAME_DIR%\*" "-xr^^!crash_extra\*" -mx=0 -bsp1
-if %errorlevel% neq 0 (
+
+:: Disable delayed expansion for 7-Zip call so ! is not mangled
+setlocal DisableDelayedExpansion
+"C:\Program Files\7-Zip\7z.exe" a -tzip "%ARCHIVE_NAME%" "%GAME_DIR%\*" -xr!crash_extra -mx=0 -bsp1
+set "ZIP_STATUS=%errorlevel%"
+endlocal & set "ZIP_STATUS=%ZIP_STATUS%"
+
+if %ZIP_STATUS% neq 0 (
     echo        -^> [ERROR] 7-Zip packaging failed.
     goto :FAIL
 )
