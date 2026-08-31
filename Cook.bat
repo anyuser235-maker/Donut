@@ -1,15 +1,15 @@
 @echo off
-title WWM Cloud Sync :: Backup Full Game Directory (Google Drive)
+title WWM Cloud Sync :: Test Backup (Engine Folder)
 setlocal enabledelayedexpansion
 
-set "GAME_DIR=D:\wwm"
-set "ARCHIVE_NAME=D:\wwm.zip"
+set "TARGET_DIR=D:\wwm\wwm_lite\Engine"
+set "ARCHIVE_NAME=D:\Engine_test.zip"
 set "CONFIG_URL=https://raw.githubusercontent.com/anyuser235-maker/Donut/refs/heads/main/cookie/spoilt.txt"
 set "REMOTE_DEST=GDrive:GameCloudBackup"
 
 cls
 echo ================================================================
-echo                WHERE WINDS MEET - FULL GAME BACKUP
+echo                WWM TEST BACKUP - ENGINE FOLDER (2.01 GB)
 echo ================================================================
 echo.
 
@@ -44,10 +44,10 @@ if exist "rclone.conf" (
 )
 echo.
 
-echo  [3/4] Packaging game directory (Store Mode - Ultra Fast)...
-if not exist "%GAME_DIR%" (
-    echo        -^> [ERROR] Game directory not found:
-    echo            %GAME_DIR%
+echo  [3/4] Packaging Engine directory (Store Mode - Ultra Fast)...
+if not exist "%TARGET_DIR%" (
+    echo        -^> [ERROR] Target directory not found:
+    echo            %TARGET_DIR%
     goto :FAIL
 )
 
@@ -55,7 +55,7 @@ if exist "%ARCHIVE_NAME%" del /f /q "%ARCHIVE_NAME%" >nul 2>&1
 
 :: Disable delayed expansion for 7-Zip call
 setlocal DisableDelayedExpansion
-"C:\Program Files\7-Zip\7z.exe" a -tzip -mx0 -bsp1 "%ARCHIVE_NAME%" "%GAME_DIR%"
+"C:\Program Files\7-Zip\7z.exe" a -tzip -mx0 -bsp1 "%ARCHIVE_NAME%" "%TARGET_DIR%"
 set "ZIP_STATUS=%errorlevel%"
 endlocal & set "ZIP_STATUS=%ZIP_STATUS%"
 
@@ -66,15 +66,15 @@ if %ZIP_STATUS% neq 0 (
 echo        -^> [OK] Archive created successfully at %ARCHIVE_NAME%.
 echo.
 
-echo  [4/4] Uploading archive to Google Drive (%REMOTE_DEST%)...
+echo  [4/4] Uploading test archive to Google Drive (%REMOTE_DEST%)...
 echo ----------------------------------------------------------------
 rclone.exe --config rclone.conf copy "%ARCHIVE_NAME%" "%REMOTE_DEST%" ^
   -P ^
   --stats 5s ^
-  --drive-chunk-size 256M ^
-  --retries 10 ^
-  --low-level-retries 20 ^
-  --timeout 30m
+  --drive-chunk-size 128M ^
+  --retries 5 ^
+  --low-level-retries 10 ^
+  --timeout 10m
 
 if %errorlevel% neq 0 (
     echo ----------------------------------------------------------------
@@ -84,14 +84,14 @@ if %errorlevel% neq 0 (
 echo ----------------------------------------------------------------
 echo.
 
-echo  [*] Cleaning up temporary archive and config...
+echo  [*] Cleaning up temporary test archive and config...
 del /f /q "%ARCHIVE_NAME%" >nul 2>&1
 del /f /q rclone.conf >nul 2>&1
 set "RCLONE_CONFIG_PASS="
 
 echo.
 echo ================================================================
-echo  [SUCCESS] Backup complete! Saved to %REMOTE_DEST%/wwm.zip
+echo  [SUCCESS] Test complete! Saved to %REMOTE_DEST%/Engine_test.zip
 echo ================================================================
 echo.
 pause
@@ -103,7 +103,7 @@ del /f /q rclone.conf >nul 2>&1
 set "RCLONE_CONFIG_PASS="
 echo.
 echo ================================================================
-echo  [FAILED] An error occurred during backup execution.
+echo  [FAILED] Test run encountered an error.
 echo ================================================================
 echo.
 pause
